@@ -1,0 +1,166 @@
+// Prisma schema for FlirtAI
+// SQLite in development; can migrate to Postgres
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  profile      UserProfile?
+  targets      TargetProfile[]
+  wallets      Wallet[]
+}
+
+model Wallet {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  address    String   @unique
+  chainId    Int
+  isPrimary  Boolean  @default(true)
+  verifiedAt DateTime?
+  createdAt  DateTime @default(now())
+}
+
+model UserProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  displayName      String
+  age              Int?
+  timeZone         String?
+  goal             String?
+  jobSector        String?
+  jobSeniority     String?
+  educationBracket String?
+  incomeBracket    String?
+  socialJson       Json?
+  networkRoles     String[]
+  commStyle        String?
+  boundaries       String[]
+  attachmentStyle  String?
+  loveLanguages    String[]
+  values           String[]
+  lifestyle        String[]
+  styleArchetype   String?
+  avgResponseMins  Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model TargetProfile {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  name         String
+  age          Int?
+  context      String?
+  availability String?
+  timeZone     String?
+  workSector   String?
+  workSeniority String?
+  socialJson   Json?
+  commStyle    String?
+  positives    String[]
+  boundaries   String[]
+  confidence   String?
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  messages     Message[]
+  uploads      Upload[]
+  analyses     AnalysisReport[]
+  memory       MemorySummary?
+}
+
+model Message {
+  id          String   @id @default(cuid())
+  targetId    String
+  target      TargetProfile @relation(fields: [targetId], references: [id])
+  role        String
+  origin      String
+  text        String
+  contentType String   @default("text")
+  replyToId   String?
+  timestamp   DateTime @default(now())
+  attachments MessageAttachment[]
+  embedded    EmbeddedMessage?
+}
+
+model MessageAttachment {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id])
+  type      String
+  path      String
+  mimeType  String
+  width     Int?
+  height    Int?
+  ocrText   String?
+  createdAt DateTime @default(now())
+}
+
+model Upload {
+  id       String   @id @default(cuid())
+  targetId String
+  target   TargetProfile @relation(fields: [targetId], references: [id])
+  userId   String
+  path     String
+  mimeType String
+  ocrText  String?
+  createdAt DateTime @default(now())
+}
+
+model AnalysisReport {
+  id          String   @id @default(cuid())
+  targetId    String
+  target      TargetProfile @relation(fields: [targetId], references: [id])
+  metricsJson Json
+  adviceJson  Json
+  state       String
+  createdAt   DateTime @default(now())
+}
+
+model MemorySummary {
+  id        String   @id @default(cuid())
+  targetId  String   @unique
+  target    TargetProfile @relation(fields: [targetId], references: [id])
+  content   String
+  keyFacts  Json
+  updatedAt DateTime @updatedAt
+}
+
+model KnowledgeDoc {
+  id     String   @id @default(cuid())
+  title  String
+  source String
+  tags   String[]
+  createdAt DateTime @default(now())
+  chunks KnowledgeChunk[]
+}
+
+model KnowledgeChunk {
+  id        String   @id @default(cuid())
+  docId     String
+  doc       KnowledgeDoc @relation(fields: [docId], references: [id])
+  text      String
+  embedding String
+  createdAt DateTime @default(now())
+}
+
+model EmbeddedMessage {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id])
+  embedding String
+  createdAt DateTime @default(now())
+}
