@@ -1,5 +1,6 @@
 'use client'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import { useState } from 'react'
 import { useStore } from '@/lib/store'
 import { Header } from '@/components/Header'
 import { ChatPanel } from '@/components/ChatPanel'
@@ -8,13 +9,15 @@ import { ChatMessage } from '@/types'
 
 export default function ChatPage() {
   const { id } = useParams<{ id: string }>()
-  const router = useRouter()
   const { user, targets, messages, addMessage } = useStore()
+  const [streaming, setStreaming] = useState(false)
+  const [apiStatus, setApiStatus] = useState<'ok' | 'no-key' | 'rate-limited'>('ok')
   const target = targets.find((t) => t.id === id)
   if (!target || !user) return <EmptyState message="Target non trovato" />
 
-  async function handleSend(text: string) {
-    if (!target) return
+  async function handleSend(text: string, _files: File[]) {
+    if (!target || !text.trim()) return
+    const history = messages[target.id] || []
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -23,11 +26,24 @@ export default function ChatPage() {
       targetId: target.id,
     }
     addMessage(userMsg)
+    setStreaming(true)
+    setApiStatus('ok')
     const res = await fetch('/api/chat', {
       method: 'POST',
-      body: JSON.stringify({ userProfile: user, targetProfile: target, recentMessages: messages[target.id] || [], userMessage: text }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userProfile: user,
+        targetProfile: target,
+        recentMessages: history,
+        userMessage: text,
+      }),
     })
-    if (res.headers.get('content-type')?.includes('application/json')) return
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const data = await res.json()
+      setApiStatus(data.status || 'error')
+      setStreaming(false)
+      return
+    }
     const reader = res.body?.getReader()
     const decoder = new TextDecoder()
     let acc = ''
@@ -36,7 +52,14 @@ export default function ChatPage() {
       if (done) break
       acc += decoder.decode(value)
     }
-    addMessage({ id: crypto.randomUUID(), role: 'assistant', content: acc, ts: Date.now(), targetId: target.id })
+    addMessage({
+      id: crypto.randomUUID(),
+      role: 'assistant',
+      content: acc,
+      ts: Date.now(),
+      targetId: target.id,
+    })
+    setStreaming(false)
   }
 
   return (
@@ -47,8 +70,8 @@ export default function ChatPage() {
           target={target}
           messages={messages[target.id] || []}
           onSend={handleSend}
-          streaming={false}
-          apiStatus="ok"
+          streaming={streaming}
+          apiStatus={apiStatus}
         />
       </div>
     </div>
