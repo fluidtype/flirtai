@@ -40,18 +40,18 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
         />
         <button
           onClick={() => setOpen(true)}
-          className="border border-brand text-brand rounded-lg px-3 py-2 flex items-center gap-1 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
+          className="border border-brand text-brand text-sm rounded-lg px-2 py-1.5 flex items-center gap-1 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
         >
-          <Plus size={16} /> Aggiungi Target
+          <Plus size={14} /> Aggiungi Target
         </button>
       </div>
       <div className="flex lg:hidden justify-center">
         <button
           onClick={() => setOpen(true)}
           aria-label="aggiungi target"
-          className="border border-brand text-brand rounded-lg p-2 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
+          className="border border-brand text-brand rounded-lg p-1.5 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
         >
-          <Plus size={16} />
+          <Plus size={14} />
         </button>
       </div>
       <ul className="flex flex-col gap-2">
@@ -88,7 +88,7 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="bg-brand p-4 rounded-2xl w-full max-w-md"
+            className="bg-[#0B0B0B] bg-grid-red border border-brand p-4 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <TargetForm onCancel={() => setOpen(false)} />
