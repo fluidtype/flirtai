@@ -5,10 +5,8 @@
 @layer base {
   body {
     @apply min-h-screen bg-bg text-white/90 font-mono;
-    background-image: url('/noise.png'), url('/scanlines.png'),
-      repeating-linear-gradient(0deg, rgba(229,9,20,0.15) 0, rgba(229,9,20,0.15) 1px, transparent 1px, transparent 24px),
-      repeating-linear-gradient(90deg, rgba(229,9,20,0.15) 0, rgba(229,9,20,0.15) 1px, transparent 1px, transparent 24px);
-    background-repeat: repeat, repeat, repeat, repeat;
+    background-image: url('/noise.png'), url('/scanlines.png');
+    background-repeat: repeat, repeat;
     color: #ffffffe6;
   }
 

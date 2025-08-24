@@ -20,7 +20,7 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
   }, [messages])
 
   return (
-    <div className="flex flex-col flex-1 min-h-[calc(100vh-64px)]">
+    <div className="flex flex-col flex-1 min-h-[calc(100vh-64px)] bg-grid-red">
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[740px] mx-auto w-full px-4 md:px-4 lg:px-6 pt-4 pb-24 flex flex-col gap-4">
           {messages.map((m) => (
@@ -44,7 +44,7 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
           {apiStatus === 'no-key' ? 'API key mancante' : 'Rate limit superato'}
         </div>
       )}
-      <div className="sticky bottom-0 border-t border-black/35 bg-[#050505]">
+      <div className="sticky bottom-0 border-t border-black/35 bg-[#050505] bg-grid-red">
         <div className="max-w-[740px] mx-auto w-full px-4 md:px-4 lg:px-6 pt-2.5 md:pt-3 pb-4 md:pb-5 lg:pb-6">
           <textarea
             value={text}

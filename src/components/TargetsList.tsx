@@ -31,7 +31,7 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
 
   return (
     <div className="flex flex-col gap-4 p-0">
-      <div className="hidden lg:flex items-center gap-2">
+      <div className="hidden lg:flex flex-col gap-2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -40,7 +40,7 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
         />
         <button
           onClick={() => setOpen(true)}
-          className="border border-brand text-brand text-sm rounded-lg px-2 py-1.5 flex items-center gap-1 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
+          className="w-full border border-brand text-brand text-sm rounded-lg px-2 py-1.5 flex items-center justify-center gap-1 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
         >
           <Plus size={14} /> Aggiungi Target
         </button>
@@ -83,12 +83,12 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
       </ul>
       {open && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4"
           tabIndex={-1}
           onClick={() => setOpen(false)}
         >
           <div
-            className="bg-[#0B0B0B] bg-grid-red border border-brand p-4 rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+            className="bg-[#0B0B0B] bg-grid-red border border-brand p-4 rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <TargetForm onCancel={() => setOpen(false)} />

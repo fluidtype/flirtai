@@ -71,7 +71,7 @@ export default function Dashboard() {
     <div className="min-h-screen">
       <Header userInitials={user?.name?.slice(0, 2) ?? '??'} />
       <div className="flex p-4">
-        <aside className="hidden md:flex md:flex-col md:w-[72px] lg:w-[260px] flex-shrink-0 overflow-y-auto max-h-[calc(100vh-64px)] gap-4 border-r-4 border-brand pr-4 mr-4">
+        <aside className="hidden md:flex md:flex-col md:w-[72px] lg:w-[260px] flex-shrink-0 overflow-y-auto h-[calc(100vh-64px)] gap-4 border-r-4 border-brand pr-4 mr-4">
           {user && (
             <div className="hidden lg:block">
               <ProfileCard
