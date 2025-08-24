@@ -47,9 +47,8 @@ export default function ChatPage() {
           target={target}
           messages={messages[target.id] || []}
           onSend={handleSend}
-          onStop={() => {}}
           streaming={false}
-          apiStatus={process.env.FARLOCK_API_KEY ? 'ok' : 'no-key'}
+          apiStatus="ok"
         />
       </div>
     </div>

@@ -8,10 +8,10 @@ export async function POST(req: NextRequest) {
   if (!rateLimit(ip)) {
     return Response.json({ status: 'rate-limited' }, { status: 429 })
   }
-  const payload = (await req.json()) as ChatPayload
-  if (!process.env.FARLOCK_API_KEY) {
+  if (!process.env.OPENAI_API_KEY) {
     return Response.json({ status: 'no-key' })
   }
+  const payload = (await req.json()) as ChatPayload
   try {
     const adapter = getAdapter()
     const stream = await adapter.streamChat(payload)

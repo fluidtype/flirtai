@@ -11,12 +11,9 @@ export type UserProfile = {
 export type TargetProfile = {
   id: string
   name: string
-  age?: number
-  followers?: number
-  job?: string
-  interests?: string[]
-  contextNotes?: string
-  images?: string[]
+  age: number
+  followers: number
+  job: string
   createdAt: number
 }
 

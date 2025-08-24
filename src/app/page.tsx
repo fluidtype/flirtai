@@ -17,8 +17,6 @@ export default function Dashboard() {
     messages,
     ui,
     setUser,
-    addTarget,
-    removeTarget,
     selectTarget,
     addMessage,
   } = useStore()
@@ -81,12 +79,6 @@ export default function Dashboard() {
             items={targets}
             selectedId={ui.selectedTargetId}
             onSelect={selectTarget}
-            onEdit={() => {}}
-            onDelete={removeTarget}
-            onCreate={() => {
-              const id = crypto.randomUUID()
-              addTarget({ id, name: 'Nuovo Target', createdAt: Date.now() })
-            }}
           />
         </div>
         <div className="col-span-12 lg:col-span-8 h-[calc(100vh-64px-32px)]">
@@ -95,9 +87,8 @@ export default function Dashboard() {
               target={selected}
               messages={messages[selected.id] || []}
               onSend={handleSend}
-              onStop={() => {}}
               streaming={false}
-              apiStatus={process.env.FARLOCK_API_KEY ? 'ok' : 'no-key'}
+              apiStatus="ok"
             />
           ) : (
             <EmptyState message="Seleziona un target per aprire la chat." />

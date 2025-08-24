@@ -7,7 +7,6 @@ interface Props {
   target: TargetProfile
   messages: ChatMessage[]
   onSend: (text: string, attachments: File[]) => void
-  onStop: () => void
   streaming: boolean
   apiStatus: 'ok' | 'no-key' | 'rate-limited'
 }
@@ -22,35 +21,55 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-4 px-4 py-6">
-        {messages.map((m) => (
-          <div key={m.id} className={m.role === 'user' ? 'text-right flex justify-end' : 'flex justify-start'}>
-            <MessageBubble role={m.role as any} content={m.content} attachments={m.attachments} timestamp={m.ts} />
-          </div>
-        ))}
-        <div ref={endRef} />
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-[740px] px-4 md:px-6 py-6 flex flex-col gap-4">
+          {messages.map((m) => (
+            <div
+              key={m.id}
+              className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
+            >
+              <MessageBubble
+                role={m.role as any}
+                content={m.content}
+                attachments={m.attachments}
+                timestamp={m.ts}
+              />
+            </div>
+          ))}
+          <div ref={endRef} />
+        </div>
       </div>
-      <div className="p-4 flex flex-col gap-2 border-t border-black/40">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="bg-white text-brand rounded-xl px-3 py-2 resize-none"
-          rows={3}
-        />
-        <FileDropzone onFiles={setFiles} accept="image/*" />
-        <button
-          onClick={() => {
-            onSend(text, files)
-            setText('')
-            setFiles([])
-          }}
-          disabled={streaming}
-          className="bg-white text-brand rounded-xl px-4 py-2 disabled:opacity-50"
-        >
-          Invia
-        </button>
-        {apiStatus === 'no-key' && <p className="text-sm">API key mancante</p>}
-        {apiStatus === 'rate-limited' && <p className="text-sm">Rate limit superato</p>}
+      {apiStatus !== 'ok' && (
+        <div className="bg-white text-brand text-sm text-center py-2">
+          {apiStatus === 'no-key'
+            ? 'API key mancante'
+            : 'Rate limit superato'}
+        </div>
+      )}
+      <div className="border-t border-black/35">
+        <div className="mx-auto w-full max-w-[740px] px-4 md:px-6 mb-6 mt-4">
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Scrivi un messaggio"
+            className="w-full bg-white text-brand placeholder-brand/60 rounded-xl px-3 py-2 resize-none outline-none"
+            rows={3}
+          />
+          <FileDropzone onFiles={setFiles} accept="image/*" />
+          <div className="flex justify-end mt-2">
+            <button
+              onClick={() => {
+                onSend(text, files)
+                setText('')
+                setFiles([])
+              }}
+              disabled={streaming}
+              className="bg-white text-brand rounded-xl px-4 py-2 disabled:opacity-50"
+            >
+              Invia
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   )

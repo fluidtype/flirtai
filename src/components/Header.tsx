@@ -10,7 +10,7 @@ export function Header({ onHelpClick, userInitials }: Props) {
   return (
     <header className="sticky top-0 z-10 h-16 flex items-center justify-between border-b border-black/40 px-4 bg-brand/90 backdrop-blur">
       <div className="flex items-center gap-2">
-        <Image src="/logo.svg" alt="logo" width={24} height={24} />
+        <Image src="/logo-flirtai.svg" alt="logo" width={24} height={24} />
         <span className="font-semibold">FlirtAI</span>
       </div>
       <div className="flex items-center gap-4">
