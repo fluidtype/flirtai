@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Providers from "@/components/Providers";
 
 export const metadata: Metadata = {
   title: "FlirtAI",
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased bg-bg text-fg">{children}</body>
+      <body className="antialiased bg-bg text-fg">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
