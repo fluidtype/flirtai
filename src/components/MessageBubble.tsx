@@ -22,7 +22,7 @@ export function MessageBubble({ role, content, attachments, timestamp }: Props) 
       {role === 'assistant' && (
         <div className="text-secondary text-xs mb-1">assistant@flirtai</div>
       )}
-      <p className="whitespace-pre-wrap text-sm">
+      <p className="whitespace-pre-wrap text-[15px] leading-[22px] max-w-[72ch]">
         {role === 'user' ? `> ${content}` : content}
       </p>
       {attachments &&

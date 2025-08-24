@@ -30,8 +30,8 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
   )
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-4 p-0">
+      <div className="hidden lg:flex items-center gap-2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -45,24 +45,36 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
           <Plus size={16} /> Aggiungi Target
         </button>
       </div>
+      <div className="flex lg:hidden justify-center">
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="aggiungi target"
+          className="border border-brand text-brand rounded-lg p-2 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
+        >
+          <Plus size={16} />
+        </button>
+      </div>
       <ul className="flex flex-col gap-2">
         {filtered.map((t) => (
           <li
             key={t.id}
             className={cn(
-              'rounded-md p-3 cursor-pointer border border-brand/40',
+              'min-h-[64px] px-3 py-2.5 cursor-pointer border border-brand/40 rounded-md',
               selectedId === t.id ? 'bg-[#0B0B0B] text-white' : 'bg-transparent text-white'
             )}
             onClick={() => onSelect(t.id)}
           >
-            <p className="font-semibold">
+            <p className="font-semibold text-sm leading-5 max-w-[72px] lg:max-w-none lg:text-base lg:leading-6 lg:block md:hidden">
               {t.name}, {t.age} • {t.job}
             </p>
-            <div className="mt-1">
+            <div className="mt-1 lg:block md:hidden">
               <span className="border border-brand text-brand rounded px-2 py-0.5 text-xs">
                 {formatFollowers(t.followers)}
               </span>
             </div>
+            <span className="hidden md:flex lg:hidden items-center justify-center h-full text-lg font-semibold">
+              {t.name.charAt(0)}
+            </span>
           </li>
         ))}
         {filtered.length === 0 && (

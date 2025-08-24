@@ -70,18 +70,24 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       <Header userInitials={user?.name?.slice(0, 2) ?? '??'} />
-      <div className="grid grid-cols-12 gap-6 p-4">
-        <div className="col-span-12 lg:col-span-4 flex flex-col gap-6">
+      <div className="flex gap-4 p-4">
+        <aside className="hidden md:flex md:flex-col md:w-[72px] lg:w-[260px] flex-shrink-0 overflow-y-auto max-h-[calc(100vh-64px)] gap-4">
           {user && (
-            <ProfileCard profile={user} onEdit={() => router.push('/setup')} onSeedDemo={() => useStore.getState().seedDemo()} />
+            <div className="hidden lg:block">
+              <ProfileCard
+                profile={user}
+                onEdit={() => router.push('/setup')}
+                onSeedDemo={() => useStore.getState().seedDemo()}
+              />
+            </div>
           )}
           <TargetsList
             items={targets}
             selectedId={ui.selectedTargetId}
             onSelect={selectTarget}
           />
-        </div>
-        <div className="col-span-12 lg:col-span-8 h-[calc(100vh-64px-32px)]">
+        </aside>
+        <main className="flex-1 flex">
           {selected ? (
             <ChatPanel
               target={selected}
@@ -91,9 +97,9 @@ export default function Dashboard() {
               apiStatus="ok"
             />
           ) : (
-            <EmptyState message="Seleziona un target per aprire la chat." />
+            <div className="flex-1"><EmptyState message="Seleziona un target per aprire la chat." /></div>
           )}
-        </div>
+        </main>
       </div>
     </div>
   )
