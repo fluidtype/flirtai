@@ -1,7 +1,12 @@
-export default function EmptyState() {
+import { Inbox } from 'lucide-react'
+
+type Props = { message: string }
+
+export function EmptyState({ message }: Props) {
   return (
-    <div className="text-center text-muted p-8" data-testid="empty-state">
-      Nessun target. Crea il tuo primo target.
+    <div className="flex flex-col items-center justify-center text-center text-white/80 p-8 gap-2">
+      <Inbox className="w-8 h-8" />
+      <p>{message}</p>
     </div>
-  );
+  )
 }
