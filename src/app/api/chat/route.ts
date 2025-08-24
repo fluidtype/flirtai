@@ -16,7 +16,11 @@ export async function POST(req: NextRequest) {
     const adapter = getAdapter()
     const stream = await adapter.streamChat(payload)
     return new Response(stream, {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      },
     })
   } catch (e: any) {
     return Response.json({ status: 'error', message: e.message }, { status: 500 })

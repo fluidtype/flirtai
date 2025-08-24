@@ -1,6 +1,7 @@
 'use client'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import { createParser } from 'eventsource-parser'
 import { useStore } from '@/lib/store'
 import { Header } from '@/components/Header'
 import { ChatPanel } from '@/components/ChatPanel'
@@ -47,10 +48,24 @@ export default function ChatPage() {
     const reader = res.body?.getReader()
     const decoder = new TextDecoder()
     let acc = ''
-    while (reader) {
-      const { value, done } = await reader.read()
-      if (done) break
-      acc += decoder.decode(value)
+    if (reader) {
+      const parser = createParser({
+        onEvent: (event) => {
+          if (event.data === '[DONE]') return
+          try {
+            const json = JSON.parse(event.data)
+            const delta = json.choices?.[0]?.delta?.content
+            if (delta) acc += delta
+          } catch {
+            // ignore malformed events
+          }
+        },
+      })
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+        parser.feed(decoder.decode(value))
+      }
     }
     addMessage({
       id: crypto.randomUUID(),

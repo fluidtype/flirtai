@@ -28,6 +28,10 @@ export class OpenAIAdapter implements ChatAdapter {
       },
       body: JSON.stringify({ model, messages, stream: true }),
     })
+    if (!res.ok) {
+      const err = await res.text()
+      throw new Error(err || 'OpenAI request failed')
+    }
     if (!res.body) throw new Error('no body')
     return res.body
   }
