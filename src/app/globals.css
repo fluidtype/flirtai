@@ -4,10 +4,9 @@
 
 @layer base {
   body {
-    @apply min-h-screen bg-bg text-white/90 font-mono;
-    background-image: url('/noise.png'), url('/scanlines.png');
-    background-repeat: repeat, repeat;
-    color: #ffffffe6;
+    @apply min-h-screen bg-brand text-white font-sans;
+    background-image: url('/noise.png');
+    background-repeat: repeat;
   }
 
   .text-brand {

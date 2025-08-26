@@ -30,17 +30,17 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
   )
 
   return (
-    <div className="flex flex-col gap-4 p-0">
+    <div className="rounded-2xl bg-white text-brand p-4 flex flex-col gap-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
       <div className="hidden lg:flex flex-col gap-2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Cerca"
-          className="flex-1 bg-transparent border border-brand text-brand rounded-lg px-3 py-2 placeholder-brand/60"
+          className="flex-1 bg-white border border-black/35 text-brand rounded-xl px-3 py-2 placeholder-brand/60"
         />
         <button
           onClick={() => setOpen(true)}
-          className="w-full border border-brand text-brand text-sm rounded-lg px-2 py-1.5 flex items-center justify-center gap-1 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
+          className="w-full bg-white text-brand font-bold rounded-full px-3 py-2 border border-black/35 hover:bg-black/10"
         >
           <Plus size={14} /> Aggiungi Target
         </button>
@@ -49,36 +49,31 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
         <button
           onClick={() => setOpen(true)}
           aria-label="aggiungi target"
-          className="border border-brand text-brand rounded-lg p-1.5 hover:shadow-[0_0_10px_rgba(229,9,20,0.5)]"
+          className="bg-white text-brand rounded-full p-2 border border-black/35 hover:bg-black/10"
         >
           <Plus size={14} />
         </button>
       </div>
-      <ul className="flex flex-col gap-2">
+      <ul className="flex flex-col divide-y divide-black/35">
         {filtered.map((t) => (
           <li
             key={t.id}
             className={cn(
-              'min-h-[64px] px-3 py-2.5 cursor-pointer border border-brand/40 rounded-md',
-              selectedId === t.id ? 'bg-[#0B0B0B] text-white' : 'bg-transparent text-white'
+              'py-3 min-h-[88px] cursor-pointer',
+              selectedId === t.id ? 'bg-black/10' : 'bg-white'
             )}
             onClick={() => onSelect(t.id)}
           >
-            <p className="font-semibold text-sm leading-5 max-w-[72px] lg:max-w-none lg:text-base lg:leading-6 lg:block md:hidden">
-              {t.name}, {t.age} • {t.job}
-            </p>
-            <div className="mt-1 lg:block md:hidden">
-              <span className="border border-brand text-brand rounded px-2 py-0.5 text-xs">
+            <p className="font-semibold text-sm leading-5">{t.name}, {t.age} • {t.job}</p>
+            <div className="mt-1">
+              <span className="bg-white border border-black/35 text-brand rounded px-2 py-0.5 text-xs">
                 {formatFollowers(t.followers)}
               </span>
             </div>
-            <span className="hidden md:flex lg:hidden items-center justify-center h-full text-lg font-semibold">
-              {t.name.charAt(0)}
-            </span>
           </li>
         ))}
         {filtered.length === 0 && (
-          <p className="text-sm text-white/80">Nessun target.</p>
+          <p className="text-sm text-center py-4">Nessun target.</p>
         )}
       </ul>
       {open && (
@@ -88,7 +83,7 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="bg-[#0B0B0B] bg-grid-red border border-brand p-4 rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto"
+            className="bg-white text-brand p-4 rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <TargetForm onCancel={() => setOpen(false)} />

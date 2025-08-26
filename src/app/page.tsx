@@ -70,16 +70,14 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       <Header userInitials={user?.name?.slice(0, 2) ?? '??'} />
-      <div className="flex p-4">
-        <aside className="hidden md:flex md:flex-col md:w-[72px] lg:w-[260px] flex-shrink-0 overflow-y-auto h-[calc(100vh-64px)] gap-4 border-r-4 border-brand pr-4 mr-4">
+      <div className="flex gap-6 p-6">
+        <aside className="hidden md:flex md:flex-col md:w-1/4 max-w-[260px] flex-shrink-0 overflow-y-auto h-[calc(100vh-64px)] gap-6">
           {user && (
-            <div className="hidden lg:block">
-              <ProfileCard
-                profile={user}
-                onEdit={() => router.push('/setup')}
-                onSeedDemo={() => useStore.getState().seedDemo()}
-              />
-            </div>
+            <ProfileCard
+              profile={user}
+              onEdit={() => router.push('/setup')}
+              onSeedDemo={() => useStore.getState().seedDemo()}
+            />
           )}
           <TargetsList
             items={targets}
@@ -87,7 +85,7 @@ export default function Dashboard() {
             onSelect={selectTarget}
           />
         </aside>
-        <main className="flex-1 flex">
+        <main className="flex-1 flex justify-center px-6">
           {selected ? (
             <ChatPanel
               target={selected}

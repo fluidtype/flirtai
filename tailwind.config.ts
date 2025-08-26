@@ -14,7 +14,7 @@ const config: Config = {
         bg: '#050505',
       },
       fontFamily: {
-        sans: ['JetBrains Mono', 'monospace'],
+        sans: ['Inter', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
       borderRadius: {
