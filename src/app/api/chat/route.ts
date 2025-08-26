@@ -1,63 +1,87 @@
 import { rateLimit } from '@/lib/rateLimit'
-import { systemPrompt, targetToContext } from '@/lib/prompt'
 
 export async function POST(req: Request) {
-  if (!process.env.OPENAI_API_KEY) {
-    return Response.json({ error: 'no-key' }, { status: 401 })
+  const apiKey = process.env.OPENAI_API_KEY
+  const apiBase = process.env.OPENAI_API_BASE || 'https://api.openai.com/v1'
+  const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+
+  if (!apiKey) {
+    return Response.json(
+      { ok: false, source: 'config', message: 'OPENAI_API_KEY mancante' },
+      { status: 400 }
+    )
   }
 
   const ip = req.headers.get('x-forwarded-for') || '0.0.0.0'
   if (!rateLimit(ip)) {
-    return Response.json({ error: 'rate-limited' }, { status: 429 })
+    return Response.json(
+      { ok: false, source: 'rate-limit', message: 'Rate limit superato' },
+      { status: 429 }
+    )
   }
 
-  const { userProfile, targetProfile, recentMessages, userMessage } = await req.json()
-
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    { role: 'system', content: `Target:\n${targetToContext(targetProfile)}` },
-    ...recentMessages.map((m: any) => ({ role: m.role, content: m.content })),
-    { role: 'user', content: userMessage },
-  ]
+  const { messages } = await req.json()
+  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+    return Response.json(
+      { ok: false, source: 'client', message: 'messages mancante' },
+      { status: 400 }
+    )
+  }
 
   const body = {
-    model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
-    stream: true,
+    model,
     messages,
+    temperature: 0.7,
+    top_p: 1,
   }
 
+  const lastUser = messages
+    .filter((m: any) => m.role === 'user')
+    .slice(-1)[0]?.content || ''
+  const start = Date.now()
+
   try {
-    const res = await fetch(`${process.env.OPENAI_API_BASE}/chat/completions`, {
+    const res = await fetch(`${apiBase}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify(body),
     })
 
-    if (!res.ok || !res.body) {
-      const err = await res.text()
-      return new Response(err, { status: res.status })
+    const duration = Date.now() - start
+    console.log(
+      `model=${model} userMsg="${lastUser.slice(0, 60)}" status=${res.status} ${duration}ms`
+    )
+
+    if (!res.ok) {
+      let err: any = {}
+      try {
+        err = await res.json()
+      } catch {
+        err.message = await res.text()
+      }
+      return Response.json(
+        {
+          ok: false,
+          source: 'openai',
+          status: res.status,
+          message: err.error?.message || err.message || 'Errore OpenAI',
+          code: err.error?.code,
+        },
+        { status: 502 }
+      )
     }
 
-    const stream = new ReadableStream({
-      async start(controller) {
-        const reader = res.body!.getReader()
-        while (true) {
-          const { value, done } = await reader.read()
-          if (done) break
-          controller.enqueue(value)
-        }
-        controller.close()
-      },
-    })
-
-    return new Response(stream, {
-      headers: { 'Content-Type': 'text/event-stream' },
-    })
+    const json = await res.json()
+    const content = json.choices?.[0]?.message?.content || ''
+    return Response.json({ ok: true, content })
   } catch (err: any) {
     console.error('API error', err)
-    return Response.json({ error: 'server-error' }, { status: 500 })
+    return Response.json(
+      { ok: false, source: 'network', message: err.message },
+      { status: 504 }
+    )
   }
 }
