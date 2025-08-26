@@ -1,28 +1,63 @@
-import { NextRequest } from 'next/server'
-import { getAdapter } from '@/lib/adapters'
 import { rateLimit } from '@/lib/rateLimit'
-import { ChatPayload } from '@/lib/adapters/ChatAdapter'
+import { systemPrompt, targetToContext } from '@/lib/prompt'
 
-export async function POST(req: NextRequest) {
-  const ip = req.ip ?? 'unknown'
-  if (!rateLimit(ip)) {
-    return Response.json({ status: 'rate-limited' }, { status: 429 })
-  }
+export async function POST(req: Request) {
   if (!process.env.OPENAI_API_KEY) {
-    return Response.json({ status: 'no-key' })
+    return Response.json({ error: 'no-key' }, { status: 401 })
   }
-  const payload = (await req.json()) as ChatPayload
+
+  const ip = req.headers.get('x-forwarded-for') || '0.0.0.0'
+  if (!rateLimit(ip)) {
+    return Response.json({ error: 'rate-limited' }, { status: 429 })
+  }
+
+  const { userProfile, targetProfile, recentMessages, userMessage } = await req.json()
+
+  const messages = [
+    { role: 'system', content: systemPrompt },
+    { role: 'system', content: `Target:\n${targetToContext(targetProfile)}` },
+    ...recentMessages.map((m: any) => ({ role: m.role, content: m.content })),
+    { role: 'user', content: userMessage },
+  ]
+
+  const body = {
+    model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
+    stream: true,
+    messages,
+  }
+
   try {
-    const adapter = getAdapter()
-    const stream = await adapter.streamChat(payload)
-    return new Response(stream, {
+    const res = await fetch(`${process.env.OPENAI_API_BASE}/chat/completions`, {
+      method: 'POST',
       headers: {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        Connection: 'keep-alive',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!res.ok || !res.body) {
+      const err = await res.text()
+      return new Response(err, { status: res.status })
+    }
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = res.body!.getReader()
+        while (true) {
+          const { value, done } = await reader.read()
+          if (done) break
+          controller.enqueue(value)
+        }
+        controller.close()
       },
     })
-  } catch (e: any) {
-    return Response.json({ status: 'error', message: e.message }, { status: 500 })
+
+    return new Response(stream, {
+      headers: { 'Content-Type': 'text/event-stream' },
+    })
+  } catch (err: any) {
+    console.error('API error', err)
+    return Response.json({ error: 'server-error' }, { status: 500 })
   }
 }

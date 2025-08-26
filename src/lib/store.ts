@@ -20,6 +20,7 @@ type Actions = {
   removeTarget: (id: string) => void
   selectTarget: (id?: string) => void
   addMessage: (m: ChatMessage) => void
+  appendMessage: (targetId: string, id: string, token: string) => void
   seedDemo: () => void
 }
 
@@ -54,6 +55,15 @@ export const useStore = create<State & Actions>()(
           messages: {
             ...get().messages,
             [m.targetId]: [...(get().messages[m.targetId] || []), m],
+          },
+        }),
+      appendMessage: (targetId, id, token) =>
+        set({
+          messages: {
+            ...get().messages,
+            [targetId]: (get().messages[targetId] || []).map((m) =>
+              m.id === id ? { ...m, content: m.content + token } : m
+            ),
           },
         }),
       seedDemo: () =>
