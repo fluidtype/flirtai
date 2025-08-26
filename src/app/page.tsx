@@ -78,9 +78,8 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       <Header userInitials={initials} />
-      <div className="pt-16">
-        <div className="grid grid-cols-12 gap-6 max-w-[1200px] mx-auto px-6">
-          <aside className="col-span-3 max-w-[260px] hidden md:flex flex-col gap-6 h-[calc(100vh-64px-16px)] overflow-y-auto z-10">
+      <div className="pt-16 flex w-full space-x-6">
+        <aside className="w-[260px] hidden md:flex flex-col gap-6 h-[calc(100vh-64px)] overflow-y-auto z-10 shrink-0">
             {user && (
               <ProfileCard
                 profile={user}
@@ -93,8 +92,8 @@ export default function Dashboard() {
               selectedId={ui.selectedTargetId}
               onSelect={selectTarget}
             />
-          </aside>
-          <main className="col-span-12 md:col-span-9 z-10 flex justify-center">
+        </aside>
+        <main className="flex-1 z-10 flex justify-center">
             {selected ? (
               <ChatPanel
                 target={selected}
@@ -106,8 +105,7 @@ export default function Dashboard() {
             ) : (
               <div className="flex-1"><EmptyState message="Seleziona un target per aprire la chat." /></div>
             )}
-          </main>
-        </div>
+        </main>
       </div>
     </div>
   )

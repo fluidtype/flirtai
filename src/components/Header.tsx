@@ -21,7 +21,7 @@ export function Header({ onHelpClick, userInitials }: Props) {
         scrolled ? 'scale-[0.92]' : ''
       }`}
     >
-      <div className="flex items-center justify-between h-full px-6 max-w-[1200px] mx-auto">
+      <div className="flex items-center justify-between h-full pr-4">
         <div className="flex items-center gap-2">
           <Image src="/logo-flirtai.svg" alt="logo" width={24} height={24} />
           <span className="font-semibold text-white">FlirtAI</span>
