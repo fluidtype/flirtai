@@ -2,7 +2,6 @@
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { useStore } from '@/lib/store'
-import { parseSSE } from '@/lib/sse'
 import { Header } from '@/components/Header'
 import { ChatPanel } from '@/components/ChatPanel'
 import { EmptyState } from '@/components/EmptyState'
@@ -11,8 +10,10 @@ import { ChatMessage } from '@/types'
 export default function ChatPage() {
   const { id } = useParams<{ id: string }>()
   const { user, targets, messages, addMessage } = useStore()
-  const [streaming, setStreaming] = useState(false)
-  const [apiStatus, setApiStatus] = useState<'ok' | 'no-key' | 'rate-limited'>('ok')
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState<{ message: string; status?: number; code?: string } | null>(
+    null
+  )
   const target = targets.find((t) => t.id === id)
   if (!target || !user) return <EmptyState message="Target non trovato" />
 
@@ -27,36 +28,36 @@ export default function ChatPage() {
       targetId: target.id,
     }
     addMessage(userMsg)
-    setStreaming(true)
-    setApiStatus('ok')
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userProfile: user,
-        targetProfile: target,
-        recentMessages: history,
-        userMessage: text,
-      }),
-    })
-    if (res.headers.get('content-type')?.includes('application/json')) {
+    setSending(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userProfile: user,
+          targetProfile: target,
+          recentMessages: history,
+          userMessage: text,
+        }),
+      })
       const data = await res.json()
-      setApiStatus(data.status || 'error')
-      setStreaming(false)
-      return
+      if (data.ok) {
+        addMessage({
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: data.content,
+          ts: Date.now(),
+          targetId: target.id,
+        })
+      } else {
+        setError({ message: data.message, status: data.status, code: data.code })
+      }
+    } catch (err: any) {
+      setError({ message: err.message })
     }
-    let acc = ''
-    await parseSSE(res, (tok) => {
-      acc += tok
-    })
-    addMessage({
-      id: crypto.randomUUID(),
-      role: 'assistant',
-      content: acc,
-      ts: Date.now(),
-      targetId: target.id,
-    })
-    setStreaming(false)
+    setSending(false)
   }
 
   return (
@@ -67,8 +68,8 @@ export default function ChatPage() {
           target={target}
           messages={messages[target.id] || []}
           onSend={handleSend}
-          streaming={streaming}
-          apiStatus={apiStatus}
+          sending={sending}
+          error={error || undefined}
         />
       </div>
     </div>

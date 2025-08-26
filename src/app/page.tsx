@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
 import { Header } from '@/components/Header'
@@ -8,6 +8,7 @@ import { TargetsList } from '@/components/TargetsList'
 import { ChatPanel } from '@/components/ChatPanel'
 import { EmptyState } from '@/components/EmptyState'
 import { ChatMessage } from '@/types'
+import { parseSSE } from '@/lib/sse'
 
 export default function Dashboard() {
   const router = useRouter()
@@ -16,10 +17,13 @@ export default function Dashboard() {
     targets,
     messages,
     ui,
-    setUser,
     selectTarget,
     addMessage,
+    appendMessage,
   } = useStore()
+
+  const [streaming, setStreaming] = useState(false)
+  const [apiStatus, setApiStatus] = useState<'ok' | 'no-key' | 'rate-limited'>('ok')
 
   useEffect(() => {
     if (!user) router.push('/setup')
@@ -35,7 +39,7 @@ export default function Dashboard() {
         .toUpperCase()
     : '??'
 
-  async function handleSend(text: string) {
+  async function handleSend(text: string, _files: File[]) {
     if (!selected || !user) return
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
@@ -45,34 +49,37 @@ export default function Dashboard() {
       targetId: selected.id,
     }
     addMessage(userMsg)
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      body: JSON.stringify({
-        userProfile: user,
-        targetProfile: selected,
-        recentMessages: messages[selected.id] || [],
-        userMessage: text,
-      }),
-    })
-    if (res.headers.get('content-type')?.includes('application/json')) {
-      return
-    }
-    const reader = res.body?.getReader()
-    const decoder = new TextDecoder()
-    let acc = ''
-    while (reader) {
-      const { value, done } = await reader.read()
-      if (done) break
-      acc += decoder.decode(value)
-    }
-    const assistantMsg: ChatMessage = {
+    const placeholder: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'assistant',
-      content: acc,
+      content: '',
       ts: Date.now(),
       targetId: selected.id,
     }
-    addMessage(assistantMsg)
+    addMessage(placeholder)
+    setApiStatus('ok')
+    setStreaming(true)
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        body: JSON.stringify({
+          userProfile: user,
+          targetProfile: selected,
+          recentMessages: messages[selected.id] || [],
+          userMessage: text,
+        }),
+      })
+      if (res.headers.get('content-type')?.includes('application/json')) {
+        const data = await res.json()
+        setApiStatus(data.error === 'no-key' ? 'no-key' : 'rate-limited')
+        return
+      }
+      await parseSSE(res, (t) => appendMessage(selected.id, placeholder.id, t))
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setStreaming(false)
+    }
   }
 
   return (
@@ -99,8 +106,8 @@ export default function Dashboard() {
                 target={selected}
                 messages={messages[selected.id] || []}
                 onSend={handleSend}
-                streaming={false}
-                apiStatus="ok"
+                streaming={streaming}
+                apiStatus={apiStatus}
               />
             ) : (
               <div className="flex-1"><EmptyState message="Seleziona un target per aprire la chat." /></div>

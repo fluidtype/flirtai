@@ -1,23 +1,34 @@
+import { createParser, ParsedEvent, ReconnectInterval } from 'eventsource-parser'
+
 export async function parseSSE(res: Response, onToken: (t: string) => void) {
   const reader = res.body?.getReader()
   if (!reader) return
   const decoder = new TextDecoder()
-  while (true) {
-    const { value, done } = await reader.read()
-    if (done) break
-    const chunk = decoder.decode(value)
-    for (const line of chunk.split('\n')) {
-      const trim = line.trim()
-      if (!trim) continue
-      if (trim === 'data: [DONE]' || trim === '[DONE]') return
-      const data = trim.startsWith('data: ') ? trim.slice(6) : trim
-      try {
-        const json = JSON.parse(data)
-        const delta = json.choices?.[0]?.delta?.content
-        if (delta) onToken(delta)
-      } catch {
-        // ignore
+
+  const parser = createParser({
+    onEvent(event: ParsedEvent | ReconnectInterval) {
+      if ('data' in event) {
+        const data = event.data
+        if (data === '[DONE]') return
+        try {
+          const json = JSON.parse(data)
+          const delta = json.choices?.[0]?.delta?.content
+          if (delta) onToken(delta)
+        } catch {
+          // ignore malformed JSON
+        }
       }
+    },
+  })
+
+  try {
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
+      parser.feed(decoder.decode(value, { stream: true }))
     }
+  } catch (err) {
+    console.error('SSE parse error', err)
+    throw err
   }
 }

@@ -3,15 +3,21 @@ import { TargetProfile, ChatMessage } from '@/types'
 import { MessageBubble } from './MessageBubble'
 import { Send, Paperclip } from 'lucide-react'
 
+interface ErrorInfo {
+  message: string
+  status?: number
+  code?: string
+}
+
 interface Props {
   target: TargetProfile
   messages: ChatMessage[]
   onSend: (text: string, attachments: File[]) => void
-  streaming: boolean
-  apiStatus: 'ok' | 'no-key' | 'rate-limited'
+  sending: boolean
+  error?: ErrorInfo
 }
 
-export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Props) {
+export function ChatPanel({ target, messages, onSend, sending, error }: Props) {
   const [text, setText] = useState('')
   const [files, setFiles] = useState<File[]>([])
   const fileRef = useRef<HTMLInputElement>(null)
@@ -19,6 +25,15 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  function suggestion(e?: ErrorInfo) {
+    if (!e?.status) return 'verifica chiave o modello'
+    if (e.status === 401) return 'Chiave errata o non attiva'
+    if (e.status === 404 || e.status === 400) return 'Modello non trovato'
+    if (e.status === 429) return 'Riprovare più tardi'
+    if (e.status >= 500) return 'Problema di rete o servizio momentaneo'
+    return 'Verifica configurazione'
+  }
 
   return (
     <div className="flex flex-col w-full max-w-[780px] mx-auto">
@@ -42,9 +57,11 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
         ))}
         <div ref={endRef} />
       </div>
-      {apiStatus !== 'ok' && (
-        <div className="bg-white text-brand text-sm text-center py-2">
-          {apiStatus === 'no-key' ? 'API key mancante' : 'Rate limit superato'}
+      {error && (
+        <div className="bg-[#E50914] text-white text-sm text-center py-2 px-2">
+          {error.message}
+          {error.status && ` (status ${error.status})`}
+          {' - ' + suggestion(error)}
         </div>
       )}
       <div className="sticky bottom-0 w-full px-4 md:px-6 pb-4">
@@ -78,11 +95,16 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
             />
             <button
               onClick={() => {
-                onSend(text, files)
+                const value = text.trim()
+                if (!value) {
+                  alert('Scrivi qualcosa prima di inviare')
+                  return
+                }
+                onSend(value, files)
                 setText('')
                 setFiles([])
               }}
-              disabled={streaming}
+              disabled={sending}
               className="w-8 h-8 rounded-full bg-[#E50914] text-white flex items-center justify-center hover:bg-white/10 transition focus:ring-2 focus:ring-[#E50914] disabled:opacity-50"
               aria-label="invia"
             >
