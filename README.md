@@ -11,6 +11,16 @@ npm install
 npm run dev
 ```
 
+Il file `.env.local` deve contenere almeno:
+
+```bash
+OPENAI_API_KEY=sk-xxxx
+OPENAI_API_BASE=https://api.openai.com/v1
+OPENAI_MODEL=gpt-4o-mini
+```
+
+Dopo ogni modifica alle variabili d'ambiente riavvia il server con `npm run dev`.
+
 ## Configurazione ambiente
 
 - In sviluppo l'app legge **solo** `.env.local` (override) e, in mancanza, `.env`.

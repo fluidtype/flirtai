@@ -24,9 +24,9 @@ export async function POST(req: Request) {
     )
   }
 
-  let body
+  let clientBody
   try {
-    body = await req.json()
+    clientBody = await req.json()
   } catch {
     return Response.json(
       { ok: false, source: 'client', message: 'JSON non valido' },
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
     )
   }
 
-  let { messages, text } = body || {}
+  let { messages, text } = clientBody || {}
   if ((!messages || !Array.isArray(messages) || messages.length === 0) && typeof text === 'string') {
     messages = [{ role: 'user', content: text }]
   }
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     )
   }
 
-  const body = {
+  const openaiBody = {
     model,
     messages,
     temperature: 0.7,
@@ -64,7 +64,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${apiKey}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(openaiBody),
     })
 
     const duration = Date.now() - start
