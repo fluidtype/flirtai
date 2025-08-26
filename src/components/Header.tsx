@@ -16,7 +16,11 @@ export function Header({ onHelpClick, userInitials }: Props) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
   return (
-    <header className={`sticky top-0 z-10 h-16 flex items-center justify-between border-b border-black/35 px-4 md:px-6 bg-transparent transition-transform ${scrolled ? 'scale-95 opacity-90' : ''}`}>
+    <header
+      className={`sticky top-0 z-10 h-16 flex items-center justify-between border-b border-black/35 px-4 md:px-6 bg-brand/95 transition-transform ${
+        scrolled ? 'scale-[0.92]' : ''
+      }`}
+    >
       <div className="flex items-center gap-2">
         <Image src="/logo-flirtai.svg" alt="logo" width={24} height={24} />
         <span className="font-semibold text-white">FlirtAI Control</span>

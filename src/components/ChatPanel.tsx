@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { TargetProfile, ChatMessage } from '@/types'
 import { MessageBubble } from './MessageBubble'
-import { FileDropzone } from './FileDropzone'
-import { Send } from 'lucide-react'
+import { Send, Paperclip } from 'lucide-react'
 
 interface Props {
   target: TargetProfile
@@ -15,6 +14,7 @@ interface Props {
 export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Props) {
   const [text, setText] = useState('')
   const [files, setFiles] = useState<File[]>([])
+  const fileRef = useRef<HTMLInputElement>(null)
   const endRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -44,10 +44,29 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
           {apiStatus === 'no-key' ? 'API key mancante' : 'Rate limit superato'}
         </div>
       )}
-      <div className="sticky bottom-0 border-t border-black/35 px-6 pt-3 pb-6">
+      <div className="sticky bottom-0 px-6 pt-3 pb-6">
         <div className="relative">
           <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,#FF3350,#E50914,#C40811)] opacity-60" />
           <div className="flex items-end gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files ? Array.from(e.target.files) : []
+                setFiles(f)
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              title="Upload file"
+              className="flex-shrink-0 w-8 h-8 rounded-full bg-white text-brand flex items-center justify-center hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-white"
+            >
+              <Paperclip className="w-4 h-4" />
+            </button>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -69,7 +88,6 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
             </button>
           </div>
         </div>
-        <FileDropzone onFiles={setFiles} accept="image/*" />
       </div>
     </div>
   )

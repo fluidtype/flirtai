@@ -21,7 +21,7 @@ export function MessageBubble({ role, content, attachments, timestamp, index = 0
           'rounded-xl px-4 py-2',
           role === 'assistant'
             ? 'bg-white text-brand shadow-[0_10px_30px_rgba(0,0,0,0.25)]'
-            : 'bg-transparent text-white border border-white'
+            : 'bg-transparent text-white border border-white/80'
         )}
         aria-label={role}
       >

@@ -59,7 +59,7 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
           <li
             key={t.id}
             className={cn(
-              'py-3 min-h-[88px] cursor-pointer',
+              'py-3 min-h-[88px] cursor-pointer transition-transform hover:scale-105 hover:bg-black/10',
               selectedId === t.id ? 'bg-black/10' : 'bg-white'
             )}
             onClick={() => onSelect(t.id)}
