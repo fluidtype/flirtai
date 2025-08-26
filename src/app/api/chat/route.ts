@@ -24,23 +24,45 @@ export async function POST(req: Request) {
     )
   }
 
+  const contentType = req.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    return Response.json(
+      {
+        ok: false,
+        source: 'client',
+        reason: 'content_type',
+        message: 'Invia JSON (Content-Type: application/json)',
+      },
+      { status: 400 }
+    )
+  }
+
   let clientBody
   try {
     clientBody = await req.json()
   } catch {
     return Response.json(
-      { ok: false, source: 'client', message: 'JSON non valido' },
+      { ok: false, source: 'client', reason: 'json', message: 'JSON non valido' },
       { status: 400 }
     )
   }
 
   let { messages, text } = clientBody || {}
   if ((!messages || !Array.isArray(messages) || messages.length === 0) && typeof text === 'string') {
-    messages = [{ role: 'user', content: text }]
+    messages = [{ role: 'user', content: text.trim() }]
   }
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+  if (
+    !Array.isArray(messages) ||
+    messages.length === 0 ||
+    !messages.some((m: any) => m.role === 'user' && typeof m.content === 'string' && m.content.trim())
+  ) {
     return Response.json(
-      { ok: false, source: 'client', message: 'messages mancante' },
+      {
+        ok: false,
+        source: 'client',
+        reason: 'invalid_input',
+        message: 'Serve almeno un messaggio utente',
+      },
       { status: 400 }
     )
   }
@@ -101,4 +123,8 @@ export async function POST(req: Request) {
       { status: 504 }
     )
   }
+}
+
+export async function GET() {
+  return Response.json({ ok: false, message: 'Method Not Allowed' }, { status: 405 })
 }
