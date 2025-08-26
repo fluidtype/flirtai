@@ -95,7 +95,12 @@ export function ChatPanel({ target, messages, onSend, sending, error }: Props) {
             />
             <button
               onClick={() => {
-                onSend(text, files)
+                const value = text.trim()
+                if (!value) {
+                  alert('Scrivi qualcosa prima di inviare')
+                  return
+                }
+                onSend(value, files)
                 setText('')
                 setFiles([])
               }}
