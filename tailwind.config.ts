@@ -11,7 +11,7 @@ const config: Config = {
         success: '#00FF7F',
         amber: '#FFC857',
         cyan: '#39E6FF',
-        bg: '#050505',
+        bg: '#0B0B0B',
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

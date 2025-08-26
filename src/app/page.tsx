@@ -26,6 +26,14 @@ export default function Dashboard() {
   }, [user, router])
 
   const selected = targets.find((t) => t.id === ui.selectedTargetId)
+  const initials = user?.name
+    ? user.name
+        .split(' ') 
+        .map((n) => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : '??'
 
   async function handleSend(text: string) {
     if (!selected || !user) return
@@ -69,35 +77,37 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen">
-      <Header userInitials={user?.name?.slice(0, 2) ?? '??'} />
-      <div className="flex gap-6 p-6">
-        <aside className="hidden md:flex md:flex-col w-[260px] max-w-[280px] flex-shrink-0 overflow-y-auto h-[calc(100vh-64px)] gap-6">
-          {user && (
-            <ProfileCard
-              profile={user}
-              onEdit={() => router.push('/setup')}
-              onSeedDemo={() => useStore.getState().seedDemo()}
+      <Header userInitials={initials} />
+      <div className="pt-16">
+        <div className="grid grid-cols-12 gap-6 max-w-[1200px] mx-auto px-6">
+          <aside className="col-span-3 max-w-[260px] hidden md:flex flex-col gap-6 h-[calc(100vh-64px-16px)] overflow-y-auto z-10">
+            {user && (
+              <ProfileCard
+                profile={user}
+                onEdit={() => router.push('/setup')}
+                onSeedDemo={() => useStore.getState().seedDemo()}
+              />
+            )}
+            <TargetsList
+              items={targets}
+              selectedId={ui.selectedTargetId}
+              onSelect={selectTarget}
             />
-          )}
-          <TargetsList
-            items={targets}
-            selectedId={ui.selectedTargetId}
-            onSelect={selectTarget}
-          />
-        </aside>
-        <main className="flex-1 flex justify-center px-6">
-          {selected ? (
-            <ChatPanel
-              target={selected}
-              messages={messages[selected.id] || []}
-              onSend={handleSend}
-              streaming={false}
-              apiStatus="ok"
-            />
-          ) : (
-            <div className="flex-1"><EmptyState message="Seleziona un target per aprire la chat." /></div>
-          )}
-        </main>
+          </aside>
+          <main className="col-span-12 md:col-span-9 z-10 flex justify-center">
+            {selected ? (
+              <ChatPanel
+                target={selected}
+                messages={messages[selected.id] || []}
+                onSend={handleSend}
+                streaming={false}
+                apiStatus="ok"
+              />
+            ) : (
+              <div className="flex-1"><EmptyState message="Seleziona un target per aprire la chat." /></div>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   )

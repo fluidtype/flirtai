@@ -4,15 +4,11 @@
 
 @layer base {
   body {
-    @apply min-h-screen bg-brand text-white font-sans;
-    background-color: #E50914;
-    background-image: radial-gradient(circle at center, #FF3350 0%, #E50914 40%, #C40811 100%), url('/noise.png');
+    @apply min-h-screen bg-bg text-white font-sans;
+    background-color: #0B0B0B;
+    background-image: radial-gradient(circle at center, rgba(26,26,26,0.3) 0%, #0B0B0B 70%, #000 100%), url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAF0lEQVR42mNk+M9Qz0AEYBxVSFUBAD1cBwgB4n8jAAAAAElFTkSuQmCC');
     background-repeat: no-repeat, repeat;
     background-size: cover, auto;
-  }
-
-  .text-brand {
-    text-shadow: 0 0 4px rgba(229, 9, 20, 0.8);
   }
 }
 

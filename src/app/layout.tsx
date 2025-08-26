@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="it" className={`${inter.variable} ${mono.variable}`}>
-      <body className="min-h-screen bg-brand text-white antialiased font-sans">
+      <body className="min-h-screen bg-bg text-white antialiased font-sans">
         <Splash />
         {children}
         <ToastViewport />

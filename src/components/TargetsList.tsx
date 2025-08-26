@@ -30,17 +30,18 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
   )
 
   return (
-    <div className="rounded-2xl bg-white text-brand p-4 flex flex-col gap-4 shadow-[0_10px_30px_rgba(0,0,0,0.25)]">
+    <div className="rounded-2xl bg-[#0B0B0B] text-[#E50914] p-4 flex flex-col gap-4 shadow-[0_2px_6px_rgba(0,0,0,0.5)]">
+      <div className="text-[11px] uppercase tracking-wide text-white/50 mb-2 hidden lg:block">Targets</div>
       <div className="hidden lg:flex flex-col gap-2">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Cerca"
-          className="flex-1 bg-white border border-black/35 text-brand rounded-xl px-3 py-2 placeholder-brand/60"
+          className="flex-1 bg-[#0B0B0B] border border-white/10 text-[#E50914] rounded-xl px-3 py-2 placeholder-[#E50914]/70"
         />
         <button
           onClick={() => setOpen(true)}
-          className="w-full bg-white text-brand font-bold rounded-full px-3 py-2 border border-black/35 hover:bg-black/10"
+          className="w-full bg-[#0B0B0B] text-[#E50914] font-bold rounded-full px-3 py-2 border border-white/10 hover:bg-white/10 transition"
         >
           <Plus size={14} /> Aggiungi Target
         </button>
@@ -49,41 +50,43 @@ export function TargetsList({ items, selectedId, onSelect }: Props) {
         <button
           onClick={() => setOpen(true)}
           aria-label="aggiungi target"
-          className="bg-white text-brand rounded-full p-2 border border-black/35 hover:bg-black/10"
+          className="bg-[#0B0B0B] text-[#E50914] rounded-full p-2 border border-white/10 hover:bg-white/10 transition"
         >
           <Plus size={14} />
         </button>
       </div>
-      <ul className="flex flex-col divide-y divide-black/35">
+      <ul className="flex flex-col divide-y divide-white/10">
         {filtered.map((t) => (
           <li
             key={t.id}
             className={cn(
-              'py-3 min-h-[88px] cursor-pointer transition-transform hover:scale-105 hover:bg-black/10',
-              selectedId === t.id ? 'bg-black/10' : 'bg-white'
+              'py-3 min-h-[88px] cursor-pointer rounded-xl bg-[#0B0B0B] p-3 shadow-sm hover:bg-white/10 hover:scale-[1.02] hover:shadow-md transition',
+              selectedId === t.id ? 'bg-white/10' : ''
             )}
             onClick={() => onSelect(t.id)}
           >
-            <p className="font-semibold text-sm leading-5">{t.name}, {t.age} • {t.job}</p>
+            <p className="font-medium text-base">
+              {t.name}, <span className="font-mono text-[13px]">{t.age}</span> • {t.job}
+            </p>
             <div className="mt-1">
-              <span className="bg-white border border-black/35 text-brand rounded px-2 py-0.5 text-xs">
+              <span className="bg-white text-[#E50914] rounded px-2 py-0.5 text-xs font-mono">
                 {formatFollowers(t.followers)}
               </span>
             </div>
           </li>
         ))}
         {filtered.length === 0 && (
-          <p className="text-sm text-center py-4">Nessun target.</p>
+          <p className="text-sm text-center py-4 text-white/70">Nessun target.</p>
         )}
       </ul>
       {open && (
         <div
-          className="fixed inset-0 z-50 overflow-y-auto bg-black/60 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/80 flex items-center justify-center p-4"
           tabIndex={-1}
           onClick={() => setOpen(false)}
         >
           <div
-            className="bg-white text-brand p-4 rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto"
+            className="bg-[#0B0B0B] text-[#E50914] p-4 rounded-2xl w-full max-w-md max-h-[80vh] overflow-y-auto shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
             onClick={(e) => e.stopPropagation()}
           >
             <TargetForm onCancel={() => setOpen(false)} />

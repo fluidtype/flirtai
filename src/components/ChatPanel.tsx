@@ -21,8 +21,11 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
   }, [messages])
 
   return (
-    <div className="flex flex-col w-full max-w-[740px] mx-auto min-h-[calc(100vh-64px)]">
-      <div className="flex-1 overflow-y-auto px-6 pt-4 pb-24 flex flex-col gap-4">
+    <div className="flex flex-col w-full max-w-[780px] mx-auto">
+      <div className="flex-1 px-4 md:px-6 pt-4 pb-24 flex flex-col gap-4 h-[calc(100vh-64px-92px-16px)] overflow-y-auto">
+        {messages.length === 0 && (
+          <p className="max-w-[520px] mx-auto text-white/70 text-center">Start your first conversation</p>
+        )}
         {messages.map((m, i) => (
           <div
             key={m.id}
@@ -44,10 +47,9 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
           {apiStatus === 'no-key' ? 'API key mancante' : 'Rate limit superato'}
         </div>
       )}
-      <div className="sticky bottom-0 px-6 pt-3 pb-6">
-        <div className="relative">
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,#FF3350,#E50914,#C40811)] opacity-60" />
-          <div className="flex items-end gap-2">
+      <div className="sticky bottom-0 w-full px-4 md:px-6 pb-4">
+        <div className="max-w-[780px] mx-auto">
+          <div className="flex items-center gap-2 rounded-xl bg-[#0B0B0B]/95 text-[#E50914] px-4 py-3 shadow-[0_2px_6px_rgba(0,0,0,0.5)] focus-within:ring-2 focus-within:ring-[#E50914]">
             <input
               ref={fileRef}
               type="file"
@@ -63,7 +65,7 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
               type="button"
               onClick={() => fileRef.current?.click()}
               title="Upload file"
-              className="flex-shrink-0 w-8 h-8 rounded-full bg-white text-brand flex items-center justify-center hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-white"
+              className="w-8 h-8 rounded-full bg-[#E50914] text-white flex items-center justify-center hover:bg-white/10 transition"
             >
               <Paperclip className="w-4 h-4" />
             </button>
@@ -71,8 +73,8 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Write your message…"
-              className="w-full bg-white text-brand placeholder-brand/60 rounded-xl px-4 py-3 resize-none outline-none"
-              rows={3}
+              className="flex-1 bg-transparent placeholder-[#E50914]/60 text-[#E50914] resize-none outline-none"
+              rows={1}
             />
             <button
               onClick={() => {
@@ -81,7 +83,7 @@ export function ChatPanel({ target, messages, onSend, streaming, apiStatus }: Pr
                 setFiles([])
               }}
               disabled={streaming}
-              className="bg-brand rounded-full p-3 text-white disabled:opacity-50 hover:scale-95 transition"
+              className="w-8 h-8 rounded-full bg-[#E50914] text-white flex items-center justify-center hover:bg-white/10 transition focus:ring-2 focus:ring-[#E50914] disabled:opacity-50"
               aria-label="invia"
             >
               <Send className="w-4 h-4" />
