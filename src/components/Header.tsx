@@ -1,7 +1,6 @@
 "use client"
 import Image from 'next/image'
 import { HelpCircle, SunMoon } from 'lucide-react'
-import { useEffect, useState } from 'react'
 
 type Props = {
   onHelpClick?: () => void
@@ -9,18 +8,8 @@ type Props = {
 }
 
 export function Header({ onHelpClick, userInitials }: Props) {
-  const [scrolled, setScrolled] = useState(false)
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
   return (
-    <header
-      className={`sticky top-0 z-50 h-16 border-b border-white/10 bg-[#0B0B0B]/90 backdrop-blur-sm transition-transform ${
-        scrolled ? 'scale-[0.92]' : ''
-      }`}
-    >
+    <header className="sticky top-0 z-50 h-16 border-b border-white/10 bg-[#0B0B0B]/90 backdrop-blur-sm">
       <div className="flex items-center justify-between h-full pr-4">
         <div className="flex items-center gap-2">
           <Image src="/logo-flirtai.svg" alt="logo" width={24} height={24} />
