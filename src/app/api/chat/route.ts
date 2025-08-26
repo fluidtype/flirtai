@@ -7,7 +7,11 @@ export async function POST(req: Request) {
 
   if (!apiKey) {
     return Response.json(
-      { ok: false, source: 'config', message: 'OPENAI_API_KEY mancante' },
+      {
+        ok: false,
+        source: 'config',
+        message: 'OPENAI_API_KEY mancante (definiscila in .env.local e riavvia)',
+      },
       { status: 400 }
     )
   }
@@ -20,7 +24,20 @@ export async function POST(req: Request) {
     )
   }
 
-  const { messages } = await req.json()
+  let body
+  try {
+    body = await req.json()
+  } catch {
+    return Response.json(
+      { ok: false, source: 'client', message: 'JSON non valido' },
+      { status: 400 }
+    )
+  }
+
+  let { messages, text } = body || {}
+  if ((!messages || !Array.isArray(messages) || messages.length === 0) && typeof text === 'string') {
+    messages = [{ role: 'user', content: text }]
+  }
   if (!messages || !Array.isArray(messages) || messages.length === 0) {
     return Response.json(
       { ok: false, source: 'client', message: 'messages mancante' },
