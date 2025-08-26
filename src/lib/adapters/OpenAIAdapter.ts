@@ -4,8 +4,8 @@ import { systemPrompt, targetToContext } from '../prompt'
 export class OpenAIAdapter implements ChatAdapter {
   async streamChat(payload: ChatPayload): Promise<ReadableStream<Uint8Array>> {
     const key = process.env.OPENAI_API_KEY
-    const base = process.env.OPENAI_API_BASE
-    const model = process.env.OPENAI_MODEL
+    const base = process.env.OPENAI_API_BASE || 'https://api.openai.com/v1'
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 
     const messages = [
       { role: 'system', content: systemPrompt },

@@ -2,7 +2,6 @@
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { useStore } from '@/lib/store'
-import { systemPrompt, targetToContext } from '@/lib/prompt'
 import { Header } from '@/components/Header'
 import { ChatPanel } from '@/components/ChatPanel'
 import { EmptyState } from '@/components/EmptyState'
@@ -32,18 +31,16 @@ export default function ChatPage() {
     setSending(true)
     setError(null)
 
-    const openAIMessages = [
-      { role: 'system', content: systemPrompt },
-      { role: 'system', content: `Target:\n${targetToContext(target)}` },
-      ...history.map((m) => ({ role: m.role, content: m.content })),
-      { role: 'user', content: text },
-    ]
-
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: openAIMessages }),
+        body: JSON.stringify({
+          userProfile: user,
+          targetProfile: target,
+          recentMessages: history,
+          userMessage: text,
+        }),
       })
       const data = await res.json()
       if (data.ok) {

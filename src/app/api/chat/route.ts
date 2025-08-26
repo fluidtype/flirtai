@@ -47,25 +47,18 @@ export async function POST(req: Request) {
     )
   }
 
-  let { messages, text } = clientBody || {}
-  if ((!messages || !Array.isArray(messages) || messages.length === 0) && typeof text === 'string') {
-    messages = [{ role: 'user', content: text.trim() }]
-  }
-  if (
-    !Array.isArray(messages) ||
-    messages.length === 0 ||
-    !messages.some((m: any) => m.role === 'user' && typeof m.content === 'string' && m.content.trim())
-  ) {
+  const { userProfile, targetProfile, recentMessages, userMessage } = clientBody || {}
+  if (typeof userMessage !== 'string' || !userMessage.trim()) {
     return Response.json(
-      {
-        ok: false,
-        source: 'client',
-        reason: 'invalid_input',
-        message: 'Serve almeno un messaggio utente',
-      },
+      { ok: false, source: 'client', message: 'messages mancante' },
       { status: 400 }
     )
   }
+  const recent = Array.isArray(recentMessages) ? recentMessages : []
+  const messages = [
+    ...recent.map((m: any) => ({ role: m.role, content: m.content })),
+    { role: 'user', content: userMessage },
+  ]
 
   const openaiBody = {
     model,
@@ -74,9 +67,7 @@ export async function POST(req: Request) {
     top_p: 1,
   }
 
-  const lastUser = messages
-    .filter((m: any) => m.role === 'user')
-    .slice(-1)[0]?.content || ''
+  const lastUser = userMessage || ''
   const start = Date.now()
 
   try {
